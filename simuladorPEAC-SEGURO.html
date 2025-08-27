@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Financeiro Empresarial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .form-section {
+            padding: 40px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .results-section {
+            padding: 40px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-group input:hover {
+            border-color: #bdc3c7;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        .results-summary {
+            display: none;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #27ae60;
+        }
+
+        .results-summary.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .summary-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .summary-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .summary-value.highlight {
+            color: #27ae60;
+            font-size: 1.2em;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .btn-export {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            background: #229954;
+            transform: translateY(-1px);
+        }
+
+        .financial-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .financial-table th {
+            background: #f8f9fa;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .financial-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f2f6;
+            transition: background-color 0.2s ease;
+        }
+
+        .financial-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .financial-table .number {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .financial-table .date {
+            color: #7f8c8d;
+        }
+
+        .financial-table .type-carencia {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .financial-table .type-amortizacao {
+            color: #27ae60;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #27ae60;
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .form-section,
+            .results-section {
+                padding: 25px;
+            }
+
+            .financial-table {
+                font-size: 0.8em;
+            }
+
+            .financial-table th,
+            .financial-table td {
+                padding: 8px 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Simulador Financeiro Empresarial</h1>
+            <p>Calcule operações de crédito com carência e amortização</p>
+        </div>
+
+        <div class="main-content">
+            <!-- SEÇÃO DE FORMULÁRIO -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>📝</span>
+                    Dados da Simulação
+                </h2>
+
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+
+                <form id="simulationForm">
+                    <!-- Dados da Empresa -->
+                    <div class="card">
+                        <div class="card-title">
+                            <span>🏢</span>
+                            Dados da Empresa
+                        </div>
+                        <div class="form-group">
+                            <label for="nomeEmpresa">Nome da Empresa</label>
+                            <input type="text" id="nomeEmpresa" value="Empresa Exemplo LTDA" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cnpj">CNPJ</label>
+                            <input type="text" id="cnpj" value="00.000.000/0001-00" required>
+                        </div>
+                    </div>
+
+                    <!-- Parâmetros da Operação -->
+                    <div class="card">
+                        <div class="card-title">
+                            <span>💰</span>
+                            Parâmetros Financeiros
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="valorOperacao">Valor da Operação (R$)</label>
+                                <input type="text" id="valorOperacao" value="1000000" placeholder="Ex: 1000000"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxaFlat">ECG - % sobre valor calculado</label>
+                                <input type="number" id="taxaFlat" value="40" step="0.01" min="0" max="100" required>
+                                <small style="color: #7f8c8d; font-size: 0.85em;">Percentual aplicado sobre ECG
+                                    calculado pela fórmula</small>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="aliquotaIofDiario">IOF Diário (% a.d.)</label>
+                                <input type="number" id="aliquotaIofDiario" value="0.0082" step="0.0001" min="0"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="aliquotaIofAdicional">IOF Adicional (%)</label>
+                                <input type="number" id="aliquotaIofAdicional" value="0.38" step="0.01" min="0"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="percentualTac">TAC - Tarifa Abertura Crédito (%)</label>
+                                <input type="number" id="percentualTac" value="3.00" step="0.01" min="0" max="100"
+                                    required>
+                                <small style="color: #7f8c8d; font-size: 0.85em;">Mín: R$ 100 | Máx: R$ 5.000</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxaCdiAnual">Taxa CDI OVER ANUAL (% a.a.)</label>
+                                <input type="number" id="taxaCdiAnual" value="14.9" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sobretaxa">Sobretaxa (% a.a.)</label>
+                                <input type="number" id="sobretaxa" value="9.25" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <!-- Campo vazio para manter o grid balanceado -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações do Seguro -->
+                    <div class="card">
+                        <div class="card-title">
+                            <span>🛡️</span>
+                            Seguro de Crédito
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="quantidadeSocios">Quantidade de Sócios</label>
+                                <input type="number" id="quantidadeSocios" value="2" min="1" max="10" required>
+                                <small style="color: #7f8c8d; font-size: 0.85em;">Número de sócios para cálculo do
+                                    seguro<br>
+                                    Fórmula: Valor × Taxa (por prazo) × Quantidade de Sócios</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="incluirSeguroExportacao">Incluir Seguro na Operação</label>
+                                <select id="incluirSeguroExportacao" required>
+                                    <option value="nao">Não incluir seguro no cronograma</option>
+                                    <option value="sim">Incluir seguro no cronograma</option>
+                                </select>
+                                <small style="color: #7f8c8d; font-size: 0.85em;">Controla se o seguro aparece no
+                                    cronograma e exportação</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Prazo -->
+                    <div class="card">
+                        <div class="card-title">
+                            <span>📅</span>
+                            Configurações de Prazo
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="prazoTotal">Prazo Total (meses)</label>
+                                <input type="number" id="prazoTotal" value="60" min="1" max="360" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="carencia">Meses de Carência</label>
+                                <input type="number" id="carencia" value="12" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="diaBase">Dia Base</label>
+                                <input type="number" id="diaBase" value="23" min="1" max="31" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prazoDias">Prazo da Operação (dias)</label>
+                                <input type="number" id="prazoDias" value="365" readonly
+                                    style="background-color: #f8f9fa; cursor: not-allowed;">
+                                <small style="color: #7f8c8d; font-size: 0.85em;">Calculado automaticamente: Prazo Total
+                                    × 30 (máx: 365 dias para IOF)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-calculate">
+                        🧮 Calcular Simulação
+                    </button>
+                </form>
+            </div>
+
+            <!-- SEÇÃO DE RESULTADOS -->
+            <div class="results-section">
+                <h2 class="section-title">
+                    <span>📊</span>
+                    Resultados da Simulação
+                </h2>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Calculando simulação...</p>
+                </div>
+
+                <div id="resultadoOperacao" class="results-summary">
+                    <div class="summary-grid" id="summaryGrid">
+                        <!-- Resultados serão inseridos aqui -->
+                    </div>
+                </div>
+
+                <div class="table-container" id="tableContainer" style="display: none;">
+                    <div class="table-header">
+                        <div class="table-title">📋 Cronograma de Pagamentos</div>
+                        <button class="btn-export" onclick="exportarResultados()">
+                            📄 Exportar
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="financial-table" id="tabelaParcelas">
+                            <thead>
+                                <tr>
+                                    <th>Parcela</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th class="number">Amortização</th>
+                                    <th class="number" id="colunaJurosSeguro">Juros+Seguro</th>
+                                    <th class="number">Fluxo Total</th>
+                                    <th class="number">Saldo Devedor</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados globais da simulação
+        let simulationData = {};
+
+        // Função para calcular o Fator K baseado no prazo total
+        function calcularFatorK(prazoTotal) {
+            if (prazoTotal <= 3) return 0.0142; // 1,42%
+            if (prazoTotal <= 6) return 0.0062; // 0,62%
+            if (prazoTotal <= 9) return 0.0042; // 0,42%
+            if (prazoTotal <= 12) return 0.0031; // 0,31%
+            if (prazoTotal <= 15) return 0.0027; // 0,27%
+            if (prazoTotal <= 18) return 0.0024; // 0,24%
+            if (prazoTotal <= 21) return 0.0022; // 0,22%
+            if (prazoTotal <= 24) return 0.0020; // 0,20%
+            if (prazoTotal <= 27) return 0.0018; // 0,18%
+            if (prazoTotal <= 30) return 0.0017; // 0,17%
+            if (prazoTotal <= 33) return 0.0016; // 0,16%
+            if (prazoTotal <= 36) return 0.0015; // 0,15%
+            if (prazoTotal <= 39) return 0.0014; // 0,14%
+            if (prazoTotal <= 45) return 0.0013; // 0,13%
+            if (prazoTotal <= 48) return 0.0012; // 0,12%
+            if (prazoTotal <= 54) return 0.0011; // 0,11%
+            if (prazoTotal <= 60) return 0.0010; // 0,10%
+            if (prazoTotal <= 69) return 0.0009; // 0,09%
+            return 0.0009; // Para prazos maiores que 69 meses
+        }
+
+        // Event listeners
+        document.getElementById('simulationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            calcularOperacao();
+        });
+
+        // Formatação automática de campos
+        document.getElementById('valorOperacao').addEventListener('blur', function (e) {
+            formatCurrencyInput(e.target);
+        });
+
+        document.getElementById('valorOperacao').addEventListener('focus', function (e) {
+            removeCurrencyFormat(e.target);
+        });
+
+        document.getElementById('valorOperacao').addEventListener('input', function (e) {
+            // Permitir apenas números durante a digitação
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value;
+        });
+
+        document.getElementById('cnpj').addEventListener('input', function (e) {
+            formatCNPJ(e.target);
+        });
+
+        // Função para calcular automaticamente os dias baseado no prazo total
+        function calcularPrazoDias() {
+            const prazoTotal = parseInt(document.getElementById('prazoTotal').value) || 0;
+            const prazoDiasCalculado = prazoTotal * 30; // Aproximação: 1 mês = 30 dias
+            const prazoDias = Math.min(prazoDiasCalculado, 365); // Limitar a 365 dias para IOF
+            document.getElementById('prazoDias').value = prazoDias;
+        }
+
+        // Validação em tempo real e cálculo automático
+        document.getElementById('prazoTotal').addEventListener('input', function (e) {
+            calcularPrazoDias(); // Recalcular dias quando prazo total mudar
+        });
+
+        document.getElementById('carencia').addEventListener('input', function (e) {
+            const prazoTotal = parseInt(document.getElementById('prazoTotal').value);
+            const carencia = parseInt(e.target.value);
+
+            if (carencia >= prazoTotal) {
+                showError('O período de carência deve ser menor que o prazo total');
+                e.target.value = Math.max(0, prazoTotal - 1);
+            }
+        });
+
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value && value.length > 0) {
+                // Formatar apenas quando o campo perde o foco
+                const numericValue = parseInt(value);
+                if (!isNaN(numericValue)) {
+                    input.value = numericValue.toLocaleString('pt-BR');
+                }
+            }
+        }
+
+        function removeCurrencyFormat(input) {
+            // Remove a formatação quando o campo ganha foco para permitir edição
+            let value = input.value.replace(/\D/g, '');
+            if (value && value.length > 0) {
+                input.value = value;
+            } else if (input.value === '') {
+                // Se o campo estiver vazio, não fazer nada
+                return;
+            }
+        }
+
+        function formatCNPJ(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+            input.value = value;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultadoOperacao').classList.remove('show');
+            document.getElementById('tableContainer').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        function validateInputs() {
+            const valorOperacao = parseFloat(document.getElementById('valorOperacao').value.replace(/\D/g, ''));
+            const prazoTotal = parseInt(document.getElementById('prazoTotal').value);
+            const carencia = parseInt(document.getElementById('carencia').value);
+            const taxaFlat = parseFloat(document.getElementById('taxaFlat').value);
+
+            if (isNaN(valorOperacao) || valorOperacao < 1000) {
+                showError('O valor da operação deve ser no mínimo R$ 1.000,00');
+                return false;
+            }
+
+            if (isNaN(prazoTotal) || prazoTotal < 1 || prazoTotal > 360) {
+                showError('O prazo total deve estar entre 1 e 360 meses');
+                return false;
+            }
+
+            if (carencia >= prazoTotal) {
+                showError('O período de carência deve ser menor que o prazo total');
+                return false;
+            }
+
+            if (isNaN(taxaFlat) || taxaFlat < 0 || taxaFlat > 100) {
+                showError('O percentual do ECG deve estar entre 0% e 100%');
+                return false;
+            }
+
+            const taxaCdiAnual = parseFloat(document.getElementById('taxaCdiAnual').value);
+            const sobretaxa = parseFloat(document.getElementById('sobretaxa').value);
+            const percentualTac = parseFloat(document.getElementById('percentualTac').value);
+
+            if (isNaN(percentualTac) || percentualTac < 0) {
+                showError('O percentual da TAC deve ser um valor positivo');
+                return false;
+            }
+
+            const quantidadeSociosValidacao = parseInt(document.getElementById('quantidadeSocios').value);
+            if (isNaN(quantidadeSociosValidacao) || quantidadeSociosValidacao < 1 || quantidadeSociosValidacao > 10) {
+                showError('A quantidade de sócios deve estar entre 1 e 10');
+                return false;
+            }
+
+            if (isNaN(taxaCdiAnual) || taxaCdiAnual < 0) {
+                showError('A Taxa CDI OVER ANUAL deve ser um valor positivo');
+                return false;
+            }
+
+            if (isNaN(sobretaxa) || sobretaxa < 0) {
+                showError('A Sobretaxa deve ser um valor positivo');
+                return false;
+            }
+
+            if (taxaCdiAnual + sobretaxa > 50) {
+                showError('A soma da Taxa CDI + Sobretaxa não pode exceder 50% ao ano');
+                return false;
+            }
+
+            return true;
+        }
+
+        function calcularOperacao() {
+            if (!validateInputs()) {
+                return;
+            }
+
+            showLoading();
+
+            // Simular delay de processamento para melhor UX
+            setTimeout(() => {
+                try {
+                    const nomeEmpresa = document.getElementById("nomeEmpresa").value;
+                    const cnpj = document.getElementById("cnpj").value;
+                    const valorOperacao = parseFloat(document.getElementById("valorOperacao").value.replace(/\D/g, ''));
+                    const taxaFlat = parseFloat(document.getElementById("taxaFlat").value) / 100;
+                    const aliquotaIofDiario = parseFloat(document.getElementById("aliquotaIofDiario").value) / 100;
+                    const aliquotaIofAdicional = parseFloat(document.getElementById("aliquotaIofAdicional").value) / 100;
+                    const percentualTac = parseFloat(document.getElementById("percentualTac").value) / 100;
+                    const quantidadeSocios = parseInt(document.getElementById("quantidadeSocios").value);
+                    const incluirSeguroExportacao = document.getElementById("incluirSeguroExportacao").value;
+                    const taxaCdiAnual = parseFloat(document.getElementById("taxaCdiAnual").value) / 100;
+                    const sobretaxa = parseFloat(document.getElementById("sobretaxa").value) / 100;
+                    const prazoTotal = parseInt(document.getElementById("prazoTotal").value);
+                    const carencia = parseInt(document.getElementById("carencia").value);
+                    const prazoDias = Math.min(prazoTotal * 30, 365); // Calculado automaticamente, limitado a 365 dias
+                    const parcelasAmortizacao = prazoTotal - carencia;
+
+                    // Calcular taxa mensal baseada na soma CDI + Sobretaxa
+                    const taxaAnualTotal = taxaCdiAnual + sobretaxa;
+                    const taxaMensal = Math.pow(1 + taxaAnualTotal, 1 / 12) - 1; // Conversão de anual para mensal
+
+                    // Cálculo do ECG usando a fórmula: ECG = 0,8 × K × VF × N
+                    const fatorK = calcularFatorK(prazoTotal);
+                    const vf = valorOperacao; // Valor da Operação
+                    const n = prazoTotal; // N = prazo total em meses (não períodos de 30 dias)
+                    const ecgCalculado = 0.8 * fatorK * vf * n;
+                    const valorFlat = ecgCalculado * taxaFlat; // Aplicar percentual sobre ECG calculado (taxaFlat já está em decimal)
+
+                    // Cálculo da TAC (Tarifa de Abertura de Crédito)
+                    const tacCalculada = valorOperacao * percentualTac;
+                    const valorTac = Math.max(100, Math.min(tacCalculada, 5000)); // Mín R$ 100, Máx R$ 5.000
+
+                    // Cálculo do Seguro de Crédito Protegido usando tabela oficial
+                    function obterTaxaSeguroPorPrazoDias(prazoDias) {
+                        // Tabela de taxas baseada no prazo em DIAS (conforme planilha oficial)
+                        const tabelaTaxas = [
+                            { prazoInicial: 30, prazoFinal: 92, taxa: 0.007412086 },
+                            { prazoInicial: 93, prazoFinal: 184, taxa: 0.008894502 },
+                            { prazoInicial: 185, prazoFinal: 276, taxa: 0.011562853 },
+                            { prazoInicial: 277, prazoFinal: 368, taxa: 0.011859336 },
+                            { prazoInicial: 369, prazoFinal: 460, taxa: 0.022236256 },
+                            { prazoInicial: 461, prazoFinal: 552, taxa: 0.023125705 },
+                            { prazoInicial: 553, prazoFinal: 644, taxa: 0.023451838 },
+                            { prazoInicial: 645, prazoFinal: 736, taxa: 0.023718672 },
+                            { prazoInicial: 737, prazoFinal: 828, taxa: 0.032020207 },
+                            { prazoInicial: 829, prazoFinal: 920, taxa: 0.032613174 },
+                            { prazoInicial: 921, prazoFinal: 1012, taxa: 0.034243834 },
+                            { prazoInicial: 1013, prazoFinal: 1104, taxa: 0.035578008 },
+                            { prazoInicial: 1105, prazoFinal: 1196, taxa: 0.044324269 },
+                            { prazoInicial: 1197, prazoFinal: 1288, taxa: 0.045658445 },
+                            { prazoInicial: 1289, prazoFinal: 1380, taxa: 0.046696136 },
+                            { prazoInicial: 1381, prazoFinal: 1472, taxa: 0.047437345 },
+                            { prazoInicial: 1473, prazoFinal: 1564, taxa: 0.057458848 },
+                            { prazoInicial: 1565, prazoFinal: 1656, taxa: 0.057636374 },
+                            { prazoInicial: 1657, prazoFinal: 1748, taxa: 0.058585121 },
+                            { prazoInicial: 1749, prazoFinal: 1840, taxa: 0.059718606 },
+                            { prazoInicial: 1841, prazoFinal: 1932, taxa: 0.063712526 },
+                            { prazoInicial: 1933, prazoFinal: 2024, taxa: 0.083818046 },
+                            { prazoInicial: 2025, prazoFinal: 2116, taxa: 0.087627958 },
+                            { prazoInicial: 2117, prazoFinal: 2208, taxa: 0.091437868 },
+                            { prazoInicial: 2209, prazoFinal: 2300, taxa: 0.109245836 },
+                            { prazoInicial: 2301, prazoFinal: 2392, taxa: 0.113615669 },
+                            { prazoInicial: 2393, prazoFinal: 2484, taxa: 0.117985504 },
+                            { prazoInicial: 2485, prazoFinal: 2576, taxa: 0.122355337 },
+                            { prazoInicial: 2577, prazoFinal: 2668, taxa: 0.126725170 },
+                            { prazoInicial: 2669, prazoFinal: 2760, taxa: 0.131095003 },
+                            { prazoInicial: 2761, prazoFinal: 2852, taxa: 0.135464836 },
+                            { prazoInicial: 2853, prazoFinal: 2944, taxa: 0.139834670 },
+                            { prazoInicial: 2945, prazoFinal: 3653, taxa: 0.144204503 }
+                        ];
+
+                        // Encontrar a taxa correspondente ao prazo em dias
+                        for (const faixa of tabelaTaxas) {
+                            if (prazoDias >= faixa.prazoInicial && prazoDias <= faixa.prazoFinal) {
+                                return faixa.taxa;
+                            }
+                        }
+
+                        // Se não encontrar, usar a última taxa (para prazos muito longos)
+                        return 0.144204503;
+                    }
+
+                    // Calcular prazo em dias para o seguro (prazo total × 30)
+                    const prazoDiasSeguro = prazoTotal * 30;
+
+                    // Obter taxa baseada no prazo em dias
+                    const taxaSeguro = obterTaxaSeguroPorPrazoDias(prazoDiasSeguro);
+
+                    // Fator multiplicador baseado na quantidade de sócios
+                    const fatorSocios = quantidadeSocios;
+
+                    // Cálculo final do seguro: Valor × Taxa × Quantidade de Sócios
+                    const valorSeguroTotal = valorOperacao * taxaSeguro * fatorSocios;
+                    // Seguro: primeira parcela no ato, última na penúltima parcela (prazoTotal - 1 parcelas)
+                    const parcelaSeguro = valorSeguroTotal / (prazoTotal - 1);
+
+                    // Cálculo do IOF conforme regras oficiais
+                    const diasLimitados = Math.min(prazoDias, 365); // Limitar a 365 dias
+                    const iofFixo = valorOperacao * aliquotaIofAdicional; // 0.38%
+                    const iofDiario = valorOperacao * aliquotaIofDiario * diasLimitados; // 0.0082% × dias
+
+                    // Verificar teto máximo do IOF (3.38% = 0.38% + 0.0082% × 365)
+                    const tetoIof = valorOperacao * 0.0338; // 3.38%
+                    const iofCalculado = iofFixo + iofDiario;
+                    const iofTotal = Math.min(iofCalculado, tetoIof);
+
+                    // Para compatibilidade com o código existente
+                    const valorIofAdicional = iofFixo;
+                    const valorIofDiario = iofTotal - iofFixo;
+
+                    const valorLiquido = valorOperacao - valorFlat - iofTotal - valorTac;
+
+                    // Armazenar dados da simulação
+                    simulationData = {
+                        nomeEmpresa,
+                        cnpj,
+                        valorOperacao,
+                        taxaFlat: taxaFlat * 100, // Converter de volta para percentual para exibição
+                        fatorK: fatorK * 100,
+                        ecgCalculado,
+                        numeroPeríodos: n, // Agora representa o prazo em meses
+                        aliquotaIofDiario: aliquotaIofDiario * 100,
+                        aliquotaIofAdicional: aliquotaIofAdicional * 100,
+                        percentualTac: percentualTac * 100,
+                        valorTac,
+                        quantidadeSocios,
+                        valorSeguroTotal,
+                        parcelaSeguro,
+                        incluirSeguroExportacao,
+                        taxaCdiAnual: taxaCdiAnual * 100,
+                        sobretaxa: sobretaxa * 100,
+                        taxaAnualTotal: taxaAnualTotal * 100,
+                        prazoTotal,
+                        carencia,
+                        prazoDias,
+                        parcelasAmortizacao,
+                        valorFlat,
+                        valorIofDiario,
+                        valorIofAdicional,
+                        iofTotal,
+                        diasLimitados,
+                        tetoIofAplicado: iofCalculado > tetoIof,
+                        valorLiquido,
+                        taxaMensal: taxaMensal * 100
+                    };
+
+                    // Exibir resumo dos resultados
+                    displaySummary();
+
+                    // Gerar tabela de parcelas
+                    generatePaymentTable();
+
+                    hideLoading();
+
+                    // Alertar se o teto do IOF foi aplicado
+                    if (simulationData.tetoIofAplicado) {
+                        showSuccess('Simulação calculada com sucesso! Nota: IOF limitado ao teto máximo de 3,38%.');
+                    } else {
+                        showSuccess('Simulação calculada com sucesso!');
+                    }
+
+                } catch (error) {
+                    hideLoading();
+                    showError('Erro ao calcular a simulação. Verifique os dados inseridos.');
+                    console.error('Erro na simulação:', error);
+                }
+            }, 800);
+        }
+
+        function displaySummary() {
+            const summaryGrid = document.getElementById('summaryGrid');
+            const data = simulationData;
+
+            summaryGrid.innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-label">Empresa</div>
+                    <div class="summary-value">${data.nomeEmpresa}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">CNPJ</div>
+                    <div class="summary-value">${data.cnpj}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Valor da Operação</div>
+                    <div class="summary-value">R$ ${data.valorOperacao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Valor Líquido</div>
+                    <div class="summary-value highlight">R$ ${data.valorLiquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">ECG Calculado</div>
+                    <div class="summary-value">R$ ${data.ecgCalculado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">ECG Final (${data.taxaFlat.toFixed(1)}%)</div>
+                    <div class="summary-value">R$ ${data.valorFlat.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">IOF Fixo (0,38%)</div>
+                    <div class="summary-value">R$ ${data.valorIofAdicional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">IOF Diário (0,0082%)</div>
+                    <div class="summary-value">R$ ${data.valorIofDiario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">IOF Total</div>
+                    <div class="summary-value highlight">R$ ${(data.valorIofDiario + data.valorIofAdicional).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">TAC (${data.percentualTac.toFixed(2)}%)</div>
+                    <div class="summary-value">R$ ${data.valorTac.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>
+                ${data.incluirSeguroExportacao === 'sim' ? `
+                <div class="summary-item">
+                    <div class="summary-label">Parcela do Seguro</div>
+                    <div class="summary-value">R$ ${data.parcelaSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                </div>` : ''}
+                <div class="summary-item">
+                    <div class="summary-label">Prazo Total</div>
+                    <div class="summary-value">${data.prazoTotal} meses</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Carência</div>
+                    <div class="summary-value">${data.carencia} meses</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Parcelas de Amortização</div>
+                    <div class="summary-value">${data.parcelasAmortizacao}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Taxa CDI OVER</div>
+                    <div class="summary-value">${data.taxaCdiAnual.toFixed(2)}% a.a.</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Sobretaxa</div>
+                    <div class="summary-value">${data.sobretaxa.toFixed(2)}% a.a.</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Taxa Total Anual (CDI + Sobretaxa)</div>
+                    <div class="summary-value highlight">${data.taxaAnualTotal.toFixed(2)}% a.a.</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Taxa Mensal</div>
+                    <div class="summary-value">${data.taxaMensal.toFixed(2)}% a.m.</div>
+                </div>
+            `;
+
+            document.getElementById('resultadoOperacao').classList.add('show');
+        }
+
+        function generatePaymentTable() {
+            const data = simulationData;
+            const tabela = document.getElementById("tabelaParcelas").getElementsByTagName("tbody")[0];
+            tabela.innerHTML = "";
+
+            let saldo = data.valorOperacao;
+            const amortizacaoMensal = data.valorOperacao / data.parcelasAmortizacao;
+            const diaBase = parseInt(document.getElementById("diaBase").value);
+            const hoje = new Date();
+            hoje.setDate(diaBase);
+
+            const incluirSeguro = data.incluirSeguroExportacao === 'sim';
+
+            // Atualizar cabeçalho da coluna dinamicamente
+            const colunaJurosSeguro = document.getElementById('colunaJurosSeguro');
+            if (colunaJurosSeguro) {
+                colunaJurosSeguro.textContent = incluirSeguro ? 'Juros+Seguro' : 'Juros';
+            }
+
+            // Parcela 0 - No ato da contratação (primeira parcela do seguro) - só se incluir seguro
+            if (incluirSeguro) {
+                const rowAto = tabela.insertRow();
+
+                // Parcela
+                const cellParcelaAto = rowAto.insertCell(0);
+                cellParcelaAto.textContent = "0";
+                cellParcelaAto.style.fontWeight = '600';
+                cellParcelaAto.style.color = '#e74c3c';
+
+                // Data
+                const cellDataAto = rowAto.insertCell(1);
+                cellDataAto.textContent = hoje.toLocaleDateString("pt-BR");
+                cellDataAto.className = 'date';
+
+                // Tipo
+                const cellTipoAto = rowAto.insertCell(2);
+                cellTipoAto.textContent = "No Ato";
+                cellTipoAto.style.color = '#e74c3c';
+                cellTipoAto.style.fontWeight = '500';
+
+                // Amortização
+                const cellAmortizacaoAto = rowAto.insertCell(3);
+                cellAmortizacaoAto.textContent = formatCurrency(0);
+                cellAmortizacaoAto.className = 'number';
+
+                // Juros+Seguro
+                const cellJurosSeguroAto = rowAto.insertCell(4);
+                cellJurosSeguroAto.textContent = formatCurrency(data.parcelaSeguro);
+                cellJurosSeguroAto.className = 'number';
+                cellJurosSeguroAto.style.fontWeight = '600';
+                cellJurosSeguroAto.style.color = '#e74c3c';
+
+                // Fluxo Total
+                const cellFluxoAto = rowAto.insertCell(5);
+                cellFluxoAto.textContent = formatCurrency(data.parcelaSeguro);
+                cellFluxoAto.className = 'number';
+                cellFluxoAto.style.fontWeight = '600';
+
+                // Saldo Devedor
+                const cellSaldoAto = rowAto.insertCell(6);
+                cellSaldoAto.textContent = formatCurrency(saldo);
+                cellSaldoAto.className = 'number';
+            }
+
+            // Parcelas regulares (1 até prazoTotal)
+            for (let i = 1; i <= data.prazoTotal; i++) {
+                const data_parcela = new Date(hoje.getFullYear(), hoje.getMonth() + i, hoje.getDate());
+                const amortizacao = i <= data.carencia ? 0 : amortizacaoMensal;
+                const juros = saldo * (data.taxaMensal / 100);
+
+                // Seguro: aplicar até a penúltima parcela (prazoTotal - 1) - só se incluir seguro
+                const valorSeguroParcela = incluirSeguro && i < data.prazoTotal ? data.parcelaSeguro : 0;
+
+                const fluxo = juros + amortizacao + valorSeguroParcela;
+                saldo = Math.max(0, saldo - amortizacao);
+
+                const row = tabela.insertRow();
+                const isCarencia = i <= data.carencia;
+
+                // Parcela
+                const cellParcela = row.insertCell(0);
+                cellParcela.textContent = i;
+                cellParcela.style.fontWeight = '600';
+
+                // Data
+                const cellData = row.insertCell(1);
+                cellData.textContent = data_parcela.toLocaleDateString("pt-BR");
+                cellData.className = 'date';
+
+                // Tipo
+                const cellTipo = row.insertCell(2);
+                cellTipo.textContent = isCarencia ? "Carência" : "Amortização";
+                cellTipo.className = isCarencia ? 'type-carencia' : 'type-amortizacao';
+
+                // Amortização
+                const cellAmortizacao = row.insertCell(3);
+                cellAmortizacao.textContent = formatCurrency(amortizacao);
+                cellAmortizacao.className = 'number';
+
+                // Juros+Seguro
+                const cellJurosSeguro = row.insertCell(4);
+                const valorJurosSeguro = juros + valorSeguroParcela;
+                cellJurosSeguro.textContent = formatCurrency(valorJurosSeguro);
+                cellJurosSeguro.className = 'number';
+
+                // Fluxo Total
+                const cellFluxo = row.insertCell(5);
+                cellFluxo.textContent = formatCurrency(fluxo);
+                cellFluxo.className = 'number';
+                cellFluxo.style.fontWeight = '600';
+
+                // Saldo Devedor
+                const cellSaldo = row.insertCell(6);
+                cellSaldo.textContent = formatCurrency(saldo);
+                cellSaldo.className = 'number';
+            }
+
+            document.getElementById('tableContainer').style.display = 'block';
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function exportarResultados() {
+            if (!simulationData.nomeEmpresa) {
+                showError('Execute uma simulação primeiro!');
+                return;
+            }
+
+            const data = simulationData;
+            let reportContent = `SIMULAÇÃO FINANCEIRA EMPRESARIAL
+${'='.repeat(50)}
+
+DADOS DA EMPRESA:
+• Nome: ${data.nomeEmpresa}
+• CNPJ: ${data.cnpj}
+
+PARÂMETROS DA OPERAÇÃO:
+• Taxa CDI OVER ANUAL: ${data.taxaCdiAnual.toFixed(2)}% a.a.
+• Sobretaxa: ${data.sobretaxa.toFixed(2)}% a.a.
+• Taxa Total Anual: ${data.taxaAnualTotal.toFixed(2)}% a.a.
+• Taxa Mensal Equivalente: ${data.taxaMensal.toFixed(2)}% a.m.
+• Prazo Total: ${data.prazoTotal} meses
+• Período de Carência: ${data.carencia} meses
+• Parcelas de Amortização: ${data.parcelasAmortizacao}
+
+RESUMO FINANCEIRO:
+• Valor da Operação: R$ ${formatCurrency(data.valorOperacao)}
+• ECG Final: R$ ${formatCurrency(data.valorFlat)}
+• IOF Fixo (0,38%): R$ ${formatCurrency(data.valorIofAdicional)}
+• IOF Diário (0,0082% × ${data.diasLimitados} dias): R$ ${formatCurrency(data.valorIofDiario)}
+• IOF Total: R$ ${formatCurrency(data.iofTotal)}${data.tetoIofAplicado ? ' (limitado ao teto de 3,38%)' : ''}
+• TAC: R$ ${formatCurrency(data.valorTac)}${data.incluirSeguroExportacao === 'sim' ? `
+• Parcela do Seguro: R$ ${formatCurrency(data.parcelaSeguro)}` : ''}
+• Valor Líquido Recebido: R$ ${formatCurrency(data.valorLiquido)}
+
+CRONOGRAMA DE PAGAMENTOS:
+${'='.repeat(86)}
+Par | Data       | Amortização  | ${data.incluirSeguroExportacao === 'sim' ? 'Juros+Seguro' : 'Juros      '} | Fluxo Total  | Saldo Devedor
+${'-'.repeat(86)}
+`;
+
+            // Gerar dados da tabela diretamente dos cálculos (sem depender do HTML)
+            let saldo = data.valorOperacao;
+            const amortizacaoMensal = data.valorOperacao / data.parcelasAmortizacao;
+            const diaBase = parseInt(document.getElementById("diaBase").value);
+            const hoje = new Date();
+            hoje.setDate(diaBase);
+
+            // Parcela 0 - No ato da contratação (primeira parcela do seguro) - só se incluir seguro
+            if (data.incluirSeguroExportacao === 'sim') {
+                const parcelaAtoStr = "0".padStart(3);
+                const dataAtoStr = hoje.toLocaleDateString("pt-BR").padEnd(10);
+                const amortizacaoAtoStr = "0,00".padStart(12);
+                const jurosSeguroAtoStr = data.parcelaSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+                const fluxoAtoStr = data.parcelaSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+                const saldoAtoStr = saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+
+                reportContent += `${parcelaAtoStr} | ${dataAtoStr} | ${amortizacaoAtoStr} | ${jurosSeguroAtoStr} | ${fluxoAtoStr} | ${saldoAtoStr}\n`;
+            }
+
+            // Parcelas regulares (1 até prazoTotal)
+            for (let i = 1; i <= data.prazoTotal; i++) {
+                const data_parcela = new Date(hoje.getFullYear(), hoje.getMonth() + i, hoje.getDate());
+                const amortizacao = i <= data.carencia ? 0 : amortizacaoMensal;
+                const juros = saldo * (data.taxaMensal / 100);
+
+                // Seguro: aplicar até a penúltima parcela (prazoTotal - 1) - só se incluir seguro
+                const valorSeguroParcela = data.incluirSeguroExportacao === 'sim' && i < data.prazoTotal ? data.parcelaSeguro : 0;
+                const valorJurosSeguro = juros + valorSeguroParcela;
+
+                const fluxo = juros + amortizacao + valorSeguroParcela;
+                saldo = Math.max(0, saldo - amortizacao);
+
+                // Formatar valores
+                const parcelaStr = i.toString().padStart(3);
+                const dataStr = data_parcela.toLocaleDateString("pt-BR").padEnd(10);
+                const amortizacaoStr = amortizacao.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+                const jurosSeguroStr = valorJurosSeguro.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+                const fluxoStr = fluxo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+                const saldoStr = saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(12);
+
+                reportContent += `${parcelaStr} | ${dataStr} | ${amortizacaoStr} | ${jurosSeguroStr} | ${fluxoStr} | ${saldoStr}\n`;
+            }
+
+            reportContent += `\n${'='.repeat(78)}`;
+            reportContent += `\nRelatório gerado em: ${new Date().toLocaleString('pt-BR')}`;
+            reportContent += `\nSimulador Financeiro Empresarial v2.0`;
+
+            // Limpar qualquer quebra de linha dupla ou caracteres problemáticos no conteúdo final
+            reportContent = reportContent
+                .replace(/\r\n/g, '\n')  // Padronizar quebras de linha
+                .replace(/\n{3,}/g, '\n\n')  // Remover quebras excessivas
+                .replace(/[\u2000-\u200F\u2028-\u202F]/g, ' ')  // Substituir espaços especiais por espaços normais
+                .replace(/\u00A0/g, ' ');  // Substituir espaços não-quebráveis por espaços normais
+
+            // Criar e baixar arquivo com codificação UTF-8 BOM para melhor compatibilidade
+            const BOM = '\uFEFF';
+            const finalContent = BOM + reportContent;
+            const blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simulacao_${data.nomeEmpresa.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showSuccess('Relatório exportado com sucesso!');
+        }
+
+        // Função para testar o cálculo do IOF
+        function testarCalculos() {
+            // Teste com o exemplo fornecido: R$ 200.000 por 6 meses
+            const valorTeste = 200000;
+            const prazoTeste = 6; // meses
+            const diasTeste = Math.min(prazoTeste * 30, 365); // Calculado automaticamente, limitado a 365
+            const aliquotaFixa = 0.0038; // 0.38%
+            const aliquotaDiaria = 0.000082; // 0.0082%
+            const percentualTacTeste = 0.03; // 3%
+            const percentualEcgTeste = 100; // 100%
+
+            // Teste ECG
+            const fatorKTeste = calcularFatorK(prazoTeste); // 0.62% para 6 meses
+            const nTeste = prazoTeste; // N = prazo em meses
+            const ecgCalculadoTeste = 0.8 * fatorKTeste * valorTeste * nTeste;
+            const ecgFinalTeste = ecgCalculadoTeste * (percentualEcgTeste / 100);
+
+            const iofFixo = valorTeste * aliquotaFixa; // R$ 760
+            const iofDiario = valorTeste * aliquotaDiaria * diasTeste; // R$ 2.952
+            const iofTotal = iofFixo + iofDiario; // R$ 3.712
+
+            // Teste TAC
+            const tacCalculada = valorTeste * percentualTacTeste; // R$ 6.000
+            const tacFinal = Math.max(100, Math.min(tacCalculada, 5000)); // R$ 5.000 (limitado)
+
+            console.log('Teste dos cálculos:');
+            console.log(`Valor: R$ ${valorTeste.toLocaleString('pt-BR')}`);
+            console.log(`Prazo: ${prazoTeste} meses (${diasTeste} dias)`);
+            console.log(`Fator K: ${(fatorKTeste * 100).toFixed(3)}%`);
+            console.log(`Períodos N: ${nTeste}`);
+            console.log(`ECG Calculado: R$ ${ecgCalculadoTeste.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`ECG Final (${percentualEcgTeste}%): R$ ${ecgFinalTeste.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`IOF Fixo: R$ ${iofFixo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`IOF Diário: R$ ${iofDiario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`IOF Total: R$ ${iofTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`TAC Calculada: R$ ${tacCalculada.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`TAC Final: R$ ${tacFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (limitada)`);
+
+            // Teste Seguro com Tabela Oficial (em DIAS)
+            const quantidadeSociosTeste = 2;
+            const valorOperacaoTeste = 1000000;
+
+            // Calcular prazo em dias para teste
+            const prazoDiasTeste = prazoTeste * 30;
+
+            // Simular obtenção da taxa por prazo em dias (usando a mesma lógica da função principal)
+            let taxaSeguroTeste = 0.011859336; // Taxa padrão
+            if (prazoDiasTeste >= 30 && prazoDiasTeste <= 92) taxaSeguroTeste = 0.007412086;
+            else if (prazoDiasTeste >= 93 && prazoDiasTeste <= 184) taxaSeguroTeste = 0.008894502;
+            else if (prazoDiasTeste >= 185 && prazoDiasTeste <= 276) taxaSeguroTeste = 0.011562853;
+            else if (prazoDiasTeste >= 277 && prazoDiasTeste <= 368) taxaSeguroTeste = 0.011859336;
+            else if (prazoDiasTeste >= 369 && prazoDiasTeste <= 460) taxaSeguroTeste = 0.022236256;
+            else if (prazoDiasTeste >= 461 && prazoDiasTeste <= 552) taxaSeguroTeste = 0.023125705;
+            else if (prazoDiasTeste >= 553 && prazoDiasTeste <= 644) taxaSeguroTeste = 0.023451838;
+            else if (prazoDiasTeste >= 645 && prazoDiasTeste <= 736) taxaSeguroTeste = 0.023718672;
+            else if (prazoDiasTeste >= 737 && prazoDiasTeste <= 828) taxaSeguroTeste = 0.032020207;
+            else if (prazoDiasTeste >= 829 && prazoDiasTeste <= 920) taxaSeguroTeste = 0.032613174;
+            else if (prazoDiasTeste >= 921 && prazoDiasTeste <= 1012) taxaSeguroTeste = 0.034243834;
+            else if (prazoDiasTeste >= 1013 && prazoDiasTeste <= 1104) taxaSeguroTeste = 0.035578008;
+            else if (prazoDiasTeste >= 1105 && prazoDiasTeste <= 1196) taxaSeguroTeste = 0.044324269;
+            else if (prazoDiasTeste >= 1197 && prazoDiasTeste <= 1288) taxaSeguroTeste = 0.045658445;
+            else if (prazoDiasTeste >= 1289 && prazoDiasTeste <= 1380) taxaSeguroTeste = 0.046696136;
+            else if (prazoDiasTeste >= 1381 && prazoDiasTeste <= 1472) taxaSeguroTeste = 0.047437345;
+            else if (prazoDiasTeste >= 1473 && prazoDiasTeste <= 1564) taxaSeguroTeste = 0.057458848;
+            else if (prazoDiasTeste >= 1565 && prazoDiasTeste <= 1656) taxaSeguroTeste = 0.057636374;
+            else if (prazoDiasTeste >= 1657 && prazoDiasTeste <= 1748) taxaSeguroTeste = 0.058585121;
+            else if (prazoDiasTeste >= 1749 && prazoDiasTeste <= 1840) taxaSeguroTeste = 0.059718606;
+            else if (prazoDiasTeste >= 1841 && prazoDiasTeste <= 1932) taxaSeguroTeste = 0.063712526;
+            else if (prazoDiasTeste >= 1933 && prazoDiasTeste <= 2024) taxaSeguroTeste = 0.083818046;
+            else if (prazoDiasTeste >= 2025 && prazoDiasTeste <= 2116) taxaSeguroTeste = 0.087627958;
+            else if (prazoDiasTeste >= 2117 && prazoDiasTeste <= 2208) taxaSeguroTeste = 0.091437868;
+            else if (prazoDiasTeste >= 2209 && prazoDiasTeste <= 2300) taxaSeguroTeste = 0.109245836;
+            else if (prazoDiasTeste >= 2301 && prazoDiasTeste <= 2392) taxaSeguroTeste = 0.113615669;
+            else if (prazoDiasTeste >= 2393 && prazoDiasTeste <= 2484) taxaSeguroTeste = 0.117985504;
+            else if (prazoDiasTeste >= 2485 && prazoDiasTeste <= 2576) taxaSeguroTeste = 0.122355337;
+            else if (prazoDiasTeste >= 2577 && prazoDiasTeste <= 2668) taxaSeguroTeste = 0.126725170;
+            else if (prazoDiasTeste >= 2669 && prazoDiasTeste <= 2760) taxaSeguroTeste = 0.131095003;
+            else if (prazoDiasTeste >= 2761 && prazoDiasTeste <= 2852) taxaSeguroTeste = 0.135464836;
+            else if (prazoDiasTeste >= 2853 && prazoDiasTeste <= 2944) taxaSeguroTeste = 0.139834670;
+            else if (prazoDiasTeste >= 2945) taxaSeguroTeste = 0.144204503;
+
+            const fatorSociosTeste = quantidadeSociosTeste;
+            const valorSeguroTotalTeste = valorOperacaoTeste * taxaSeguroTeste * fatorSociosTeste;
+            // Seguro: primeira parcela no ato, última na penúltima parcela (prazoTeste - 1 parcelas)
+            const parcelaSeguroTeste = valorSeguroTotalTeste / (prazoTeste - 1);
+
+            console.log(`Seguro Total (${quantidadeSociosTeste} sócios, ${prazoTeste} meses = ${prazoDiasTeste} dias, taxa: ${(taxaSeguroTeste * 100).toFixed(6)}%): R$ ${valorSeguroTotalTeste.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+            console.log(`Parcela do Seguro: R$ ${parcelaSeguroTeste.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function () {
+            // Calcular prazo em dias inicial
+            calcularPrazoDias();
+
+            // Focar no primeiro campo
+            document.getElementById('nomeEmpresa').focus();
+
+            // Testar cálculos
+            testarCalculos();
+
+            // Adicionar tooltips ou ajuda contextual se necessário
+            console.log('Simulador Financeiro Empresarial carregado com sucesso!');
+        });
+    </script>
+</body>
+
+</html>
+</body>
+
+</html>
