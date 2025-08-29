@@ -745,13 +745,15 @@
                             </div>
                         </div>
                         <div class="form-grid">
-                            <div class="form-group">
+                            <!-- IOF Diário ocultado conforme solicitação -->
+                            <div class="form-group" style="display: none;">
                                 <label for="aliquotaIofDiario">IOF Diário (% a.d.)</label>
                                 <input type="number" id="aliquotaIofDiario" value="0.0082" step="0.0001" min="0"
                                     readonly style="background-color: #f8f9fa; cursor: not-allowed;" required>
                                 <small style="color: #7f8c8d; font-size: 0.85em;">Valor fixo conforme legislação</small>
                             </div>
-                            <div class="form-group">
+                            <!-- IOF Adicional ocultado conforme solicitação -->
+                            <div class="form-group" style="display: none;">
                                 <label for="aliquotaIofAdicional">IOF Adicional (%)</label>
                                 <input type="number" id="aliquotaIofAdicional" value="0.38" step="0.01" min="0"
                                     readonly style="background-color: #f8f9fa; cursor: not-allowed;" required>
@@ -828,7 +830,8 @@
                                 <label for="diaBase">Dia Base (1-28)</label>
                         <input type="number" id="diaBase" value="23" min="1" max="28" required>
                             </div>
-                            <div class="form-group">
+                            <!-- Prazo da Operação (dias) ocultado conforme solicitação -->
+                            <div class="form-group" style="display: none;">
                                 <label for="prazoDias">Prazo da Operação (dias)</label>
                                 <input type="number" id="prazoDias" value="365" readonly
                                     style="background-color: #f8f9fa; cursor: not-allowed;">
