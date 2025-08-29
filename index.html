@@ -248,6 +248,29 @@
             margin-top: 20px;
         }
 
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
         .table-header {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
@@ -374,6 +397,7 @@
             display: none;
         }
 
+        /* Tablet Layout */
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -386,39 +410,281 @@
 
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .summary-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-
-            .header {
-                padding: 30px 20px;
+                gap: 12px;
             }
 
             .header h1 {
-                font-size: 2.2em;
+                font-size: 2.4em;
+            }
+        }
+
+        /* Mobile Layout */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .header {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+                line-height: 1.2;
+            }
+
+            .header p {
+                font-size: 1em;
             }
 
             .form-section,
             .results-section {
-                padding: 25px;
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.3em;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .card-title {
+                font-size: 1.1em;
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .form-group label {
+                font-size: 0.9em;
+                margin-bottom: 6px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 14px 16px;
+                font-size: 16px; /* Previne zoom no iOS */
+                border-radius: 8px;
+            }
+
+            .btn-calculate {
+                padding: 18px 40px;
+                font-size: 1.1em;
+                margin-top: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .summary-item {
+                padding: 15px 10px;
+                min-height: 80px;
+            }
+
+            .summary-label {
+                font-size: 0.75em;
+            }
+
+            .summary-value {
+                font-size: 1em;
+            }
+
+            .table-container {
+                margin-top: 15px;
+            }
+
+            .table-header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .table-title {
+                font-size: 1.1em;
+            }
+
+            .btn-export {
+                align-self: center;
+                padding: 10px 20px;
             }
 
             .financial-table {
-                font-size: 0.8em;
+                font-size: 0.75em;
             }
 
             .financial-table th,
             .financial-table td {
-                padding: 8px 6px;
+                padding: 10px 6px;
+                word-break: break-word;
+            }
+
+            .financial-table th {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Small Mobile Layout */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 0.9em;
+            }
+
+            .form-section,
+            .results-section {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 16px 14px;
+            }
+
+            .btn-calculate {
+                padding: 16px 30px;
+                font-size: 1em;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 8px;
+            }
+
+            .summary-item {
+                padding: 12px 8px;
+                min-height: 70px;
+            }
+
+            .summary-label {
+                font-size: 0.7em;
+            }
+
+            .summary-value {
+                font-size: 0.9em;
+            }
+
+            .table-header {
+                padding: 12px;
+            }
+
+            .financial-table {
+                font-size: 0.7em;
+            }
+
+            .financial-table th,
+            .financial-table td {
+                padding: 8px 4px;
+            }
+
+            /* Melhor visualização da tabela em telas muito pequenas */
+             .financial-table th:nth-child(n+5),
+             .financial-table td:nth-child(n+5) {
+                 display: none;
+             }
+
+             /* Mostrar indicador de scroll em mobile */
+             .mobile-scroll-hint {
+                 display: block !important;
+             }
+
+             /* Melhorar scroll horizontal em mobile */
+             .table-scroll {
+                 border-radius: 0 0 15px 15px;
+             }
+
+             .table-scroll::-webkit-scrollbar {
+                 height: 6px;
+             }
+        }
+
+        /* Melhorias de usabilidade touch */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-calculate,
+            .btn-export {
+                min-height: 44px; /* Tamanho mínimo recomendado para touch */
+                touch-action: manipulation; /* Previne zoom duplo */
+            }
+
+            .form-group input,
+            .form-group select {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+
+            .financial-table tr {
+                min-height: 44px;
+            }
+
+            /* Melhor feedback visual para touch */
+            .btn-calculate:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+
+            .btn-export:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+
+            /* Área de toque expandida para inputs pequenos */
+            .form-group input[type="number"] {
+                padding: 16px 14px;
+            }
+        }
+
+        /* Orientação landscape em dispositivos móveis */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-section,
+            .results-section {
+                padding: 15px;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             }
         }
     </style>
@@ -603,7 +869,7 @@
                             📄 Exportar
                         </button>
                     </div>
-                    <div style="overflow-x: auto;">
+                    <div class="table-scroll">
                         <table class="financial-table" id="tabelaParcelas">
                             <thead>
                                 <tr>
@@ -618,6 +884,13 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+                    
+                    <!-- Indicador de scroll para mobile -->
+                    <div class="mobile-scroll-hint" style="display: none;">
+                        <small style="color: #7f8c8d; text-align: center; display: block; padding: 10px;">
+                            👈 Deslize para ver mais colunas
+                        </small>
                     </div>
                 </div>
             </div>
